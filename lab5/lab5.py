@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #1)завантаження цсв
-d=pd.read_csv("titanic.csv")
+d=pd.read_csv("lab5/titanic.csv")
 print("=== Інформація про дані ===")
 print(d.info())
 
