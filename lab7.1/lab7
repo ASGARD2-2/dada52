@@ -1,0 +1,54 @@
+# Імпортуємо необхідні бібліотеки
+import pandas as pd          # для роботи з таблицями (DataFrame)
+import numpy as np           # для обчислень з масивами
+from sklearn.model_selection import train_test_split  # для поділу даних
+from sklearn.linear_model import LinearRegression     # для побудови лінійної регресії
+from sklearn import metrics                           # для оцінки точності моделі
+import matplotlib.pyplot as plt                       # для побудови графіків
+
+# 1) завантаження даних
+d = pd.read_csv("insurance.csv")  # читаємо CSV-файл з даними страхування
+
+# 2) вибір потрібних колонок
+d = d[['age', 'region', 'smoker', 'expenses']].copy()  # залишаємо лише потрібні стовпці
+
+# 3) вписування (кодування) змінних
+d['smk'] = d['smoker'].map({'yes': 1, 'no': 0})        # перетворюємо "smoker" у числовий формат (1 або 0)
+reg = pd.get_dummies(d['region'], prefix='r', drop_first=True)  # кодуємо регіони у вигляді 0/1 (one-hot encoding)
+d = pd.concat([d.drop(columns=['region', 'smoker']), reg], axis=1)  # об’єднуємо все в один набір даних
+
+# 4) розділення даних
+X = d.drop(columns=['expenses'])       # X — вхідні ознаки (вік, регіон, куріння)
+y = d['expenses']                      # y — вихідна змінна (вартість страхування)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25, random_state=42)  # ділимо дані на тренувальні й тестові
+
+# 5) створення та навчання моделі
+m = LinearRegression()  # створюємо об’єкт лінійної регресії
+m.fit(X_tr, y_tr)       # навчаємо модель на тренувальних даних
+y_pr = m.predict(X_te)  # прогнозуємо значення для тестових даних
+
+# 6) обчислення похибок
+err = np.abs(y_te - y_pr)     # абсолютна похибка (модуль різниці)
+perr = err / y_te * 100       # відсоткова похибка (у % від реального значення)
+
+# 7) результати
+r = X_te.copy()               # копіюємо тестові ознаки
+r['real'] = y_te              # додаємо реальні значення
+r['pred'] = y_pr              # додаємо прогнозовані значення
+r['perr'] = perr              # додаємо відсоткову похибку
+
+print("Перші 10 результатів:")  # виводимо заголовок
+print(r.head(10))               # показуємо перші 10 рядків результатів
+
+# 8) метрики оцінки якості моделі
+mae = metrics.mean_absolute_error(y_te, y_pr)   # середня абсолютна похибка
+r2 = metrics.r2_score(y_te, y_pr)               # коефіцієнт детермінації (якість моделі)
+print(f"\nMAE = {mae:.2f}")                    # виводимо MAE з округленням
+print(f"R² = {r2:.4f}")                        # виводимо R² з округленням
+
+# 9) побудова гістограми похибок
+plt.hist(perr, bins=30, color='skyblue', edgecolor='black')  # будуємо гістограму розподілу похибок
+plt.title("Гістограма відсоткових похибок")                  # заголовок графіка
+plt.xlabel("Похибка (%)")                                   # підпис осі X
+plt.ylabel("Кількість")                                     # підпис осі Y
+plt.show()                                                  # показуємо графік
