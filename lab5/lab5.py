@@ -3,23 +3,23 @@ import matplotlib.pyplot as plt
 
 #1)завантаження цсв
 d=pd.read_csv("lab5/titanic.csv")
-print("=== Інформація про дані ===")
+print(" Інформація про дані")
 print(d.info())
 
 #2)перші 5 та останні 10
-print("\n=== Перші 5 ===")
+print("\n Перші 5")
 print(d.head())
-print("\n=== Останні 10 ===")
+print("\n Останні 10")
 print(d.tail(10))
 
 #3)вижили>30
 s30=d[(d["Age"]>30)&(d["Survived"]==1)]
-print("\n=== Вижили старше 30 ===")
+print("\n Вижили старше 30")
 print(s30)
 
 #4)з братами і сестрами
 sib=d[d["SibSp"]>0]
-print("\n=== З братами/сестрами ===")
+print("\n З братами/сестрами")
 print(sib)
 
 #5)діаграма
